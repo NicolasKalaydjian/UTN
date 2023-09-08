@@ -5,7 +5,7 @@
 ### TP enfocado en Algoritmos y Estructuras de datos utilizando el lenguaje de programación C++. Hecho para la materia Algoritmos y Estructuras de Datos, 1º año de la carrera de Ingenieria en Sistemas de UTN. 
 
 ### Temas vistos en la materia y en su mayoria usados en el TP:
-- Estructuras de secuencias.
+- Estructuras de secuencia.
 - Estructuras de decisión.
 - Estructuras de repetición. 
 - Funciones.
