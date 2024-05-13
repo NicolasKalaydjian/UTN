@@ -1,0 +1,232 @@
+import neflis.* // si
+import planes.* // si
+import contenidos.* // si
+import algoritmos.* // si
+
+// ENTREGA 1
+
+const margoZavala = new Cuenta(plan = planPremium)
+
+const perfilMargo = 
+	new Perfil(	nombre = "margo", 
+				plan = planPremium, 
+				algoritmo = valoracionSimilar,
+				fechaNacimiento = new Date(day = 2, month = 4, year = 1995))
+				
+const perfilCosme = 
+	new Perfil(	nombre = "cosme", 
+			   	plan = planPremium, 
+			   	algoritmo = new PreferenciaGenero(generos = ["accion", "aventuras"]),
+			   	fechaNacimiento = new Date(day = 15, month = 10, year = 1990))
+			   	
+const henryCavill = new Cuenta(plan = planBasico)
+
+const perfilHenry = 
+	new Perfil(	nombre = "henry", 
+				plan = planBasico, 
+				algoritmo = valoracionSimilar,
+				fechaNacimiento = new Date(day = 6, month = 5, year = 1983))
+		
+const criminalMinds = new Serie(
+    	temporadas = [temporada1],
+    	generos = ["policial"],
+    	actores = ["Matthew Gray Gubler", "Shemar Moore"]
+    )
+	
+const temporada1 = new Temporada(
+    	numero = 1,
+    	capitulos = [1,2,3,4,5,6,7,8,9],
+    	cantCapMaxima = 10
+)
+
+const justiceLeague = new Pelicula(
+		duracion = 120,
+    	generos = ["accion", "aventura", "fantasia oscura", "ciencia ficcion", "superheroes"],
+    	actores = ["Henry Cavill", "Ben Affleck", "Gal Gadot", "Jason Momoa", "Ray Fisher", "Ezra Miller"]
+    )
+
+describe "Cuentas" {
+	
+    test "Cosme puede ver Black Sails" {
+		assert.that(perfilCosme.puedeVer(blackSails))
+	}
+	test "Cosme puede ver “Sean Eternos”" {
+		assert.that(perfilCosme.puedeVer(seanEternos))
+	}
+	test "Margo puede ver “Sean Eternos”" {
+		assert.that(perfilMargo.puedeVer(seanEternos))
+	}
+	test "Margo ve “Black Sails”" {
+		perfilMargo.verContenido(blackSails, 100)
+		assert.that(perfilMargo.vioOEstaViendo(blackSails))
+	}
+	test "Calcular la valoración de Cosme" {
+		assert.equals(0, perfilCosme.valoracionUsuario())
+	}
+	test "Calcular la valoración de Margo, luego de ver “Black Sails” y “Avengers Endgame”" {
+		perfilMargo.verContenido(blackSails, 100)
+		perfilMargo.verContenido(avengersEndgame, 100)
+		assert.equals(18, perfilMargo.valoracionUsuario())
+		// ahora que las series por defecto no tienen temporadas su valoracion es 0
+	}
+}
+
+describe "Recomendaciones" {
+	
+	test "Margo podría ver “Sean Eternos”" {
+		assert.that(perfilMargo.veriaContenido(seanEternos))
+	}
+	test "Margo luego de ver “Sean Eternos”, no podría ver “Black Sails”" {
+		perfilMargo.verContenido(seanEternos, 100)
+		assert.that(perfilMargo.veriaContenido(blackSails))
+	}
+	test "Cosme vería “Black Sails”" {
+		assert.that(perfilCosme.veriaContenido(blackSails))
+	}
+	test "Cosme vería “Sean Eternos”" {
+		assert.notThat(perfilCosme.veriaContenido(seanEternos))
+	}
+	test "Margo luego de ver “Sean Eternos”, podría ver
+			“Black Sails”, cambiando el desvío a 70%" {
+		valoracionSimilar.desvio(0.70)
+		perfilMargo.verContenido(seanEternos, 100)
+		assert.that(perfilMargo.veriaContenido(blackSails))
+	}
+	
+	test "Cosme con agregado de preferencia de género 
+			“Documental” podría ver “Sean Eternos”" {	
+		perfilCosme.cambiarRecomendador(new PreferenciaGenero(generos = ["accion", "aventuras", "documental"]))
+		assert.that(perfilCosme.veriaContenido(seanEternos))
+	}
+}
+
+// ENTREGA 2
+
+describe "Perfiles" {
+	
+	test "Creacion de El Barto" {
+		margoZavala.crearPerfil("cosme", new Date())
+		margoZavala.crearPerfil("margo", new Date())
+		margoZavala.crearPerfil("El Barto", new Date())
+		assert.equals(3, margoZavala.perfiles().size())
+	}
+	
+	test "el perfil de margo es variado?" {
+		assert.notThat(perfilMargo.esVariado())
+	}
+	
+	test "el perfil de cosme es variado?" {
+		assert.notThat(perfilCosme.esVariado())
+	}
+	
+	test "el perfil de El Barto es variado?" {
+		const perfilBarto = 
+			new Perfil(nombre = "margo", 
+				plan = planPremium, 
+				algoritmo = new PreferenciaGenero(generos = ["animacion", "comedia", "fantasia", "accion", "drama", "terror"]),
+				fechaNacimiento = new Date())
+		assert.that(perfilBarto.esVariado())
+	}
+	test "el perfil de Murphy Encias Sangrantes es variado?" {
+		const murphyEnciasSangrantes =
+			new Perfil(nombre = "murphyEnciasSangrantes", 
+				plan = planPremium, 
+				algoritmo = new ModoFan(actores = ["Robert Downey Jr."]),
+				fechaNacimiento = new Date()
+				)	
+		assert.that(murphyEnciasSangrantes.esVariado())
+	}
+}
+
+describe "Recomendaciones 2" {
+	
+	test "validar recomendacion de Murphy Encias Sangrantes" {
+		const murphyEnciasSangrantes =
+			new Perfil(nombre = "murphyEnciasSangrantes", 
+				plan = planPremium, 
+				algoritmo = new ModoFan(actores = ["Robert Downey Jr."]),
+				fechaNacimiento = new Date()
+				)	
+		assert.equals([], repositorio.contenidoQueSeRecomendaria(murphyEnciasSangrantes))
+	}
+}
+
+// ENTREGA 3
+
+describe "Visualización"{
+
+  	test "Margo ve un 75% y luego un 25% de ver Avengers, se registra el porcentaje visto y luego puede consultarse"{
+    	perfilMargo.verContenido(avengersEndgame, 75)
+    	perfilMargo.verContenido(avengersEndgame, 25)
+    	assert.equals(100,perfilMargo.porcentajeVisto(avengersEndgame)) 	
+  	}
+
+  	test "Cosme ve un 100 de Avengers, se registra el porcentaje visto y luego puede consultarse"{
+  		perfilCosme.verContenido(avengersEndgame, 60)
+    	assert.equals(60,perfilCosme.porcentajeVisto(avengersEndgame))	
+  	}
+  	
+  	test "Si un perfil con planBasico intenta ver un contenido premium se lanza un excepcion de tipo PlanException"{
+    	assert.throwsExceptionLike(
+    		new PlanException(message = "el plan no permite ver el contenido"), 
+    		{perfilHenry.verContenido(goodOmens, 30)}
+    	)
+  	}
+  	
+}
+  
+describe "Series de Estreno"{
+    
+  	test "Poder consultar la cantidad de capitulos de una serie correctamente"{
+    	assert.equals(9, criminalMinds.cantCapitulos())
+	}
+	
+	test "Poder agregar un capitulo a la ultima temporada de una serie"{
+		criminalMinds.agregarCapitulo(10)
+    	assert.equals(10, criminalMinds.cantCapitulos())
+	}
+
+  	test "Validar que no se puede agregar mas capitulos que el maximo permitido"{
+  		criminalMinds.agregarCapitulo(10)
+  	  	assert.throwsExceptionLike(
+    		new TemporadaException(message = "La temporada ya ha finalizado"), 
+    		{criminalMinds.agregarCapitulo(11)}
+    	)
+  	}
+
+}
+
+describe "Puntuacion"{
+	
+	method initialize() {
+		planBasico.agregarContenido(justiceLeague)
+	}
+
+  	test "Un perfil puede dar un puntaje a un contenido visto por completo" {
+    	perfilHenry.verContenido(justiceLeague, 100)
+    	perfilHenry.puntuarContenido(justiceLeague, 5)
+    	assert.equals(5, perfilHenry.puntuacionDe(justiceLeague))
+    }
+    
+    test "Un perfil puede dar un puntaje a un contenido visto sin terminar" {
+    	perfilHenry.verContenido(avengersEndgame, 10)
+    	perfilHenry.puntuarContenido(avengersEndgame, 1)
+    	assert.equals(1, perfilHenry.puntuacionDe(avengersEndgame))
+    }
+    
+    test "El usuario no puede dar un puntaje fuera del rango de 1 a 5" {
+    	perfilHenry.verContenido(avengersEndgame, 10)
+    	assert.throwsExceptionLike(
+    		new PuntuacionException(message = "puntuacion no valida"), 
+    		{perfilHenry.puntuarContenido(avengersEndgame, -10)}
+    	)
+    }
+
+  	test "El usuario no puede dar un puntaje a un contenido no visto" {
+		assert.throwsExceptionLike(
+    		new PuntuacionException(message = "contenido no visto no se puede puntuar"), 
+    		{perfilHenry.puntuarContenido(goodOmens, 1)}
+    	)
+	}
+	
+}
