@@ -19,7 +19,6 @@
   - Asignación dinámica de memoria.
   - Lista simplemente y doblemente enlazada.
   - Apareo y corte de control en listas simples.
-  - Lista doblemente enlazada.
   - Lista circular.
   - Lista con sublista.
 - Combinación de estructuras de datos.
